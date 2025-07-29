@@ -29,11 +29,12 @@ import { Mousewheel, Pagination } from 'swiper'
 // 导入页面组件
 
 import Page1 from '@/components/Home/Home.vue'
-import Page2 from '@/components/Memory/Memory.vue'
-import Page3 from '@/components/ToDoList/ToDoList.vue'
+import Page2 from '@/components/ToDoList/ToDoList.vue'
+// import Page3 from '@/components/Memory/Memory.vue'
+
 import Header from '@/components/Header.vue'
 
-const siteTitle = ref('T&H的爱情小屋')
+const siteTitle = ref('H&T的爱情小屋')
 const slogan = ref('爱你就像爱生命')
 
 // 必须导入Swiper样式
@@ -45,7 +46,8 @@ const activeIndex = ref(0)
 
 const pages = [
   { component: Page1 },
-  { component: Page3 }
+  { component: Page2 },
+  // { component: Page3 }
 ]
 
 const onSlideChange = (swiper) => {
