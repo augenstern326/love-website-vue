@@ -30,29 +30,26 @@
               </div>
             </div>
 
-            <div :class="['list_texts', { 'animated fadeInUp delay-03s': text.Animation === '1' }]">
+            <div :class="['list_texts', 'scrollable-list', { 'animated fadeInUp delay-03s': text.Animation === '1' }]">
               <ul class="lovelist modern-list">
                 <li
-                  v-for="(event, index) in loveEvents"
+                  v-for="(event, index) in sortedEvents"
                   :key="event.id"
                   :class="['event-item', 'modern-item', { 'completed': event.status, 'pending': !event.status }]"
-                  @click="toggleEvent(index)"
                 >
                   <div class="event-content">
-                    <div class="status-indicator">
-                      <div v-if="event.status" class="status-icon completed-icon">
-                        <i class="iconfont icon-chenggong2"></i>
-                      </div>
-                      <div v-else class="status-icon pending-icon">
-                        <i class="iconfont icon-chenggong2"></i>
+                    <!-- 勾选框 -->
+                    <div class="checkbox-container">
+                      <div :class="['checkbox', { 'checked': event.status }]">
+                        <svg v-if="event.status" class="checkmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20,6 9,17 4,12"></polyline>
+                        </svg>
                       </div>
                     </div>
-                    <span :class="['event-title', { 'completed-text': event.status }]">
+
+                    <span class="event-title">
                       {{ event.name }}
                     </span>
-                    <div class="completion-badge" v-if="event.status">
-                      <span class="badge-text">已完成</span>
-                    </div>
                   </div>
                 </li>
               </ul>
@@ -167,17 +164,14 @@ export default {
 
     // 移除expandedEvents相关代码，因为现在直接切换完成状态
 
-    // Toggle event status (完成/未完成)
-    const toggleEvent = (index) => {
-      loveEvents.value[index].status = !loveEvents.value[index].status;
-
-      // 可选：添加一些反馈效果
-      if (loveEvents.value[index].status) {
-        console.log(`🎉 完成了: ${loveEvents.value[index].name}`);
-      } else {
-        console.log(`📝 重新标记为待完成: ${loveEvents.value[index].name}`);
-      }
-    };
+    // 排序事件：未完成的在前，已完成的在后
+    const sortedEvents = computed(() => {
+      return [...loveEvents.value].sort((a, b) => {
+        // 未完成的(false)排在前面，已完成的(true)排在后面
+        if (a.status === b.status) return 0;
+        return a.status ? 1 : -1;
+      });
+    });
 
     // Format date for display
     const formatDate = (dateString) => {
@@ -200,7 +194,7 @@ export default {
 
     return {
       loveEvents,
-      toggleEvent,
+      sortedEvents,
       formatDate,
       completedCount,
       totalCount,
@@ -211,11 +205,11 @@ export default {
 </script>
 
 <style scoped>
-/* 容器样式 */
+/* 容器样式 - 与整体背景保持一致 */
 .todo-container {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #ffeef8 0%, #f0e6ff 50%, #e6f3ff 100%);
+  background: transparent;
   overflow: hidden;
 }
 
@@ -376,15 +370,15 @@ export default {
   border-radius: 1rem;
   overflow: hidden;
   transition: all 0.3s ease;
-  cursor: pointer;
+  cursor: default;
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(255, 182, 193, 0.2);
 }
 
 .modern-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .modern-item.completed {
@@ -396,54 +390,77 @@ export default {
   background: rgba(255, 255, 255, 0.8);
 }
 
-.event-content {
-  display: flex;
-  align-items: center;
-  padding: 1.2rem 1.5rem;
-  position: relative;
+/* 滚动容器样式 */
+.scrollable-list {
+  max-height: 75vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
 }
 
-/* 状态指示器 */
-.status-indicator {
+.scrollable-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-list::-webkit-scrollbar-track {
+  background: rgba(255, 182, 193, 0.1);
+  border-radius: 3px;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ff6b9d, #c44569);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ff5a8a, #b8456b);
+}
+
+/* 勾选框样式 */
+.checkbox-container {
   margin-right: 1rem;
   flex-shrink: 0;
 }
 
-.status-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  background: white;
   position: relative;
 }
 
-.completed-icon {
+.checkbox.checked {
   background: linear-gradient(135deg, #19ffa0, #00d4aa);
+  border-color: #19ffa0;
+  box-shadow: 0 2px 8px rgba(25, 255, 160, 0.3);
+}
+
+.checkmark {
+  width: 14px;
+  height: 14px;
   color: white;
-  box-shadow: 0 4px 15px rgba(25, 255, 160, 0.4);
-  animation: completedPulse 2s infinite;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.2s ease;
 }
 
-.pending-icon {
-  background: rgba(221, 221, 221, 0.8);
-  color: #999;
-  border: 2px dashed #ddd;
+.checkbox.checked .checkmark {
+  opacity: 1;
+  transform: scale(1);
 }
 
-@keyframes completedPulse {
-  0%, 100% {
-    box-shadow: 0 4px 15px rgba(25, 255, 160, 0.4);
-  }
-  50% {
-    box-shadow: 0 4px 20px rgba(25, 255, 160, 0.6);
-  }
-}
-
-.status-icon i {
-  font-size: 1.2rem;
+.event-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  position: relative;
 }
 
 /* 事件标题 */
@@ -454,12 +471,8 @@ export default {
   color: #333;
   transition: all 0.3s ease;
   font-family: 'Noto Serif SC', serif;
-}
-
-.completed-text {
-  color: #666;
-  text-decoration: line-through;
-  opacity: 0.8;
+  text-align: left;
+  line-height: 1.5;
 }
 
 /* 完成徽章 */
@@ -494,6 +507,11 @@ export default {
     padding: 1.5rem 1rem 1rem;
   }
 
+  .scrollable-list {
+    max-height: 65vh;
+    padding-right: 0.25rem;
+  }
+
   .event-content {
     padding: 1rem;
   }
@@ -502,13 +520,14 @@ export default {
     font-size: 1rem;
   }
 
-  .status-icon {
-    width: 2rem;
-    height: 2rem;
+  .checkbox {
+    width: 18px;
+    height: 18px;
   }
 
-  .status-icon i {
-    font-size: 1rem;
+  .checkmark {
+    width: 12px;
+    height: 12px;
   }
 
   .floating-heart {
@@ -525,8 +544,25 @@ export default {
     max-width: 100%;
   }
 
+  .scrollable-list {
+    max-height: 60vh;
+  }
+
   .event-content {
     padding: 0.8rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .checkbox {
+    width: 16px;
+    height: 16px;
+  }
+
+  .checkmark {
+    width: 10px;
+    height: 10px;
   }
 
   .completion-badge {
