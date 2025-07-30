@@ -9,12 +9,14 @@ const startDate = ref('2025-06-06 20:00:00')
 
 const boyData = ref({
   name: 'Hu',
-  avatar: new URL('@/assets/img/avatar/avatar1.jpg', import.meta.url).href
+  avatar:'https://q1.qlogo.cn/g?b=qq&nk=1792427522&s=640'
+  //avatar: new URL('@/assets/img/avatar/avatar1.jpg', import.meta.url).href
 })
 
 const girlData = ref({
   name: 'Tang',
-  avatar: new URL('@/assets/img/avatar/avatar2.jpg', import.meta.url).href
+  avatar: 'https://q1.qlogo.cn/g?b=qq&nk=2640611157&s=640'
+  //avatar: new URL('@/assets/img/avatar/avatar2.jpg', import.meta.url).href
 })
 const animationEnabled = ref(true)
 const blurEnabled = ref(false)
@@ -30,6 +32,7 @@ const blurEnabled = ref(false)
         :blur-effect="blurEnabled"
     />
     <CountUpTimer :start-date="startDate"/>
+    <div></div>
   </div>
 </template>
 <style scoped>

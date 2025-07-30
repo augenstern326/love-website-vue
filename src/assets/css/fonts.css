@@ -1,0 +1,38 @@
+/* 定义字体 */
+@font-face {
+    /* 字体名称，用于后续引用 */
+    font-family: 'Aa百物语';
+    /* 字体文件路径，修正为正确的相对路径 */
+    src: url('../fonts/Aa百物语.ttf') format('truetype');
+    /* 字体样式 */
+    font-style: normal;
+    /* 字体粗细 */
+    font-weight: 400;
+    /* 字体显示策略 */
+    font-display: swap;
+}
+
+@font-face {
+    font-family: '龚帆乐淘体';
+    src: url('../fonts/龚帆乐淘体.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: '字魂流氓兔体';
+    src: url('../fonts/字魂流氓兔体.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+
+@font-face {
+    font-family: 'Glorious Easter TTF Personal';
+    src: url('../fonts/Glorious Easter TTF Personal.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}

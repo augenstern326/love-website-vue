@@ -89,10 +89,10 @@ import Page1 from '@/components/Home/Home.vue'
 import Page2 from '@/components/ToDoList/ToDoList.vue'
 import Page3 from '@/components/Memory/Memory.vue'
 
-import Header from '@/components/Header.vue'
+import Header from '@/components/Header/Header.vue'
 
 const siteTitle = ref('H&T的爱情小屋')
-const slogan = ref('爱你就像爱生命')
+const slogan = ref('')
 
 // 必须导入Swiper样式
 import 'swiper/css'

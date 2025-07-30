@@ -8,29 +8,11 @@
       <div class="floating-heart heart-4">🌸</div>
     </div>
 
-    <div id="pjax-container">
+    <div id="pjax-container" class="pjax-full-height">
       <div class="central">
         <div class="row central central-800">
           <div v-if="loveEvents.length > 0" class="card col-lg-12 col-md-12 col-sm-12 col-sm-x-12 modern-card">
-
-            <!-- 标题和进度统计 -->
-            <div class="todo-header">
-              <h2 class="todo-title">
-                <span class="title-icon">💝</span>
-                我们的爱情清单
-                <span class="title-icon">💝</span>
-              </h2>
-              <div class="progress-stats">
-                <div class="progress-bar-container">
-                  <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
-                </div>
-                <div class="progress-text">
-                  已完成 {{ completedCount }}/{{ totalCount }} 项 ({{ Math.round(progressPercentage) }}%)
-                </div>
-              </div>
-            </div>
-
-            <div :class="['list_texts', 'scrollable-list', { 'animated fadeInUp delay-03s': text.Animation === '1' }]">
+            <div class="list_texts scrollable-list">
               <ul class="lovelist modern-list">
                 <li
                   v-for="(event, index) in sortedEvents"
@@ -87,12 +69,12 @@ export default {
       },
       {
         id: 3,
-        name: '一起住进自己的大House🏠',
+        name: '一起住进大House🏠',
         status: false
       },
       {
         id: 4,
-        name: '一起拥有自己的小汽车🚗',
+        name: '一起拥有一辆小汽车🚗',
         status: false
       },
       {
@@ -112,7 +94,7 @@ export default {
       },
       {
         id:8,
-        name: '一起去旅游📸',
+        name: '一起外出旅游📸',
         status: false
       },
       {
@@ -152,7 +134,7 @@ export default {
       },
       {
         id:15,
-        name:'一起做DIY🎨',
+        name:'一起DIY手工🎨',
         status: false
       },
       {
@@ -179,38 +161,48 @@ export default {
       return new Date(dateString).toLocaleDateString('zh-CN', options);
     };
 
-    // 计算进度统计
-    const completedCount = computed(() => {
-      return loveEvents.value.filter(event => event.status === true).length;
-    });
 
-    const totalCount = computed(() => {
-      return loveEvents.value.length;
-    });
-
-    const progressPercentage = computed(() => {
-      return totalCount.value > 0 ? (completedCount.value / totalCount.value) * 100 : 0;
-    });
 
     return {
       loveEvents,
       sortedEvents,
-      formatDate,
-      completedCount,
-      totalCount,
-      progressPercentage
+      formatDate
     };
   }
 };
 </script>
 
 <style scoped>
-/* 容器样式 - 与整体背景保持一致 */
+/* 容器样式 - 占满整个屏幕 */
 .todo-container {
-  position: relative;
-  min-height: 100vh;
+  position: fixed;
+  top: 4.5rem; /* 从Header下方开始 */
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: transparent;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pjax-full-height {
+  height: 100%;
+  width: 100%;
+}
+
+.central {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.row {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* 背景装饰 */
@@ -227,158 +219,91 @@ export default {
 .floating-heart {
   position: absolute;
   font-size: 2rem;
-  opacity: 0.3;
-  animation: float 6s ease-in-out infinite;
+  opacity: 0.2;
+  /* 移除动画效果 */
 }
 
 .heart-1 {
   top: 10%;
   left: 10%;
-  animation-delay: 0s;
 }
 
 .heart-2 {
   top: 20%;
   right: 15%;
-  animation-delay: 2s;
 }
 
 .heart-3 {
   bottom: 30%;
   left: 20%;
-  animation-delay: 4s;
 }
 
 .heart-4 {
   bottom: 15%;
   right: 10%;
-  animation-delay: 1s;
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(5deg);
-  }
+/* 基础卡片样式 */
+.card {
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible; /* 允许滚动条显示 */
+  box-sizing: border-box;
 }
 
-/* 现代化卡片样式 */
+/* 现代化卡片样式 - 严格控制尺寸 */
 .modern-card {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  border-radius: 2rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
   position: relative;
-  z-index: 1;
-}
-
-/* 标题区域 */
-.todo-header {
-  text-align: center;
-  padding: 2rem 2rem 1rem;
-  border-bottom: 1px solid rgba(255, 182, 193, 0.2);
-  margin-bottom: 1rem;
-}
-
-.todo-title {
-  font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #ff6b9d, #c44569, #9b59b6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 1.5rem;
-  font-family: 'Noto Serif SC', serif;
-}
-
-.title-icon {
-  margin: 0 0.5rem;
-  display: inline-block;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-/* 进度统计 */
-.progress-stats {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.progress-bar-container {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 182, 193, 0.3);
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-}
-
-.progress-bar {
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  background: linear-gradient(90deg, #ff6b9d, #c44569, #9b59b6);
-  border-radius: 10px;
-  transition: width 0.8s ease;
-  position: relative;
+  max-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow: visible; /* 允许滚动条显示 */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.progress-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: shimmer 2s infinite;
-}
 
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
 
-.progress-text {
-  font-size: 0.9rem;
-  color: #666;
-  font-weight: 500;
+/* 列表容器样式 */
+.list_texts {
+  height: 100%;
+  max-height: 100%;
+  overflow: visible; /* 允许滚动条显示 */
+  display: flex;
+  flex-direction: column;
 }
 
 /* 列表样式 */
 .modern-list {
   padding: 0;
   margin: 0;
+  height: 100%;
+  max-height: 100%;
+  /* 不设置overflow，让父容器scrollable-list处理滚动 */
+  flex: 1;
 }
 
 .modern-item {
   list-style: none;
-  margin-bottom: 1rem;
-  border-radius: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
   overflow: hidden;
-  transition: all 0.3s ease;
   cursor: default;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 182, 193, 0.2);
-}
-
-.modern-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 182, 193, 0.2);
+  /* 移除所有动画和过渡效果以提升滚动性能 */
 }
 
 .modern-item.completed {
@@ -390,30 +315,36 @@ export default {
   background: rgba(255, 255, 255, 0.8);
 }
 
-/* 滚动容器样式 */
+/* 滚动容器样式 - 严格限制在卡片内部 */
 .scrollable-list {
-  max-height: 75vh;
+  flex: 1;
+  height: 100%;
+  max-height: 100%;
   overflow-y: auto;
-  padding-right: 0.5rem;
+  overflow-x: hidden;
+  padding: 1.5rem 1rem 1rem 1rem; /* 修复右侧padding */
+  box-sizing: border-box;
+  /* 优化滚动性能 */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .scrollable-list::-webkit-scrollbar {
-  width: 6px;
+  width: 12px;
 }
 
 .scrollable-list::-webkit-scrollbar-track {
-  background: rgba(255, 182, 193, 0.1);
-  border-radius: 3px;
+  background: #ffeef8;
+  border-radius: 4px;
 }
 
 .scrollable-list::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #ff6b9d, #c44569);
-  border-radius: 3px;
-  transition: background 0.3s ease;
+  background: #00d4aa; 
+  border-radius: 4px;
 }
 
 .scrollable-list::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #ff5a8a, #b8456b);
+  background: linear-gradient(135deg, #90ee90, #00ff7f); /* 悬停时的薄荷绿 */
 }
 
 /* 勾选框样式 */
@@ -430,29 +361,25 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
   background: white;
   position: relative;
+  /* 移除动画效果 */
 }
 
 .checkbox.checked {
   background: linear-gradient(135deg, #19ffa0, #00d4aa);
   border-color: #19ffa0;
-  box-shadow: 0 2px 8px rgba(25, 255, 160, 0.3);
 }
 
 .checkmark {
   width: 14px;
   height: 14px;
   color: white;
-  opacity: 0;
-  transform: scale(0.5);
-  transition: all 0.2s ease;
+  /* 移除动画效果 */
 }
 
 .checkbox.checked .checkmark {
   opacity: 1;
-  transform: scale(1);
 }
 
 .event-content {
@@ -469,10 +396,10 @@ export default {
   font-size: 1.1rem;
   font-weight: 500;
   color: #333;
-  transition: all 0.3s ease;
   font-family: 'Noto Serif SC', serif;
   text-align: left;
   line-height: 1.5;
+  /* 移除动画效果 */
 }
 
 /* 完成徽章 */
@@ -483,33 +410,53 @@ export default {
   border-radius: 1rem;
   font-size: 0.75rem;
   font-weight: 600;
-  animation: slideIn 0.5s ease;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  /* 移除动画效果 */
 }
 
 /* 移动端优化 */
 @media (max-width: 768px) {
-  .todo-title {
-    font-size: 1.5rem;
+  .todo-container {
+    position: fixed;
+    top: 4.5rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
-  .todo-header {
-    padding: 1.5rem 1rem 1rem;
+  .pjax-full-height {
+    height: 100%;
+    width: 100%;
+  }
+
+  .central {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  .row {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .modern-card {
+    height: 100%;
+    max-height: 100%;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.98);
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .scrollable-list {
-    max-height: 65vh;
-    padding-right: 0.25rem;
+    padding: 1.5rem 0.75rem 0.75rem 0.75rem; /* 保持顶部padding避免遮挡 */
   }
 
   .event-content {
@@ -536,16 +483,29 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .todo-title {
-    font-size: 1.3rem;
+  .todo-container {
+    position: fixed;
+    top: 4.5rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
-  .progress-stats {
+  .modern-card {
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    max-height: 100%;
+    width: 100%;
     max-width: 100%;
+    background: rgba(255, 255, 255, 0.98);
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .scrollable-list {
-    max-height: 60vh;
+    padding: 1.5rem 0.5rem 0.5rem 0.5rem; /* 保持顶部padding避免遮挡 */
   }
 
   .event-content {
