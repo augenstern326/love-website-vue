@@ -2,14 +2,30 @@
 <template>
   <div
       class="group relative bg-white/90 backdrop-blur-md rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 touch-manipulation"
-      :style="cardStyle"
+      :style="{
+        ...cardStyle,
+        position: 'relative',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: '1rem',
+        overflow: 'hidden',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        marginBottom: '1rem'
+      }"
       @mouseenter="showDetails = true"
       @mouseleave="showDetails = false"
       @touchstart="handleTouchStart"
       @touchend="handleTouchEnd"
   >
     <!-- 图片容器 -->
-    <div class="relative h-48 sm:h-56 md:h-64 overflow-hidden">
+    <div
+      class="relative h-48 sm:h-56 md:h-64 overflow-hidden"
+      :style="{
+        position: 'relative',
+        height: '12rem',
+        overflow: 'hidden'
+      }"
+    >
       <!-- 图片加载骨架屏 -->
       <div
           v-if="!isImageLoaded && !isImageFailed"
@@ -86,8 +102,22 @@
     </div>
 
     <!-- 卡片内容 -->
-    <div class="p-3 sm:p-4">
-      <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2" :style="titleStyle">
+    <div
+      class="p-3 sm:p-4"
+      :style="{
+        padding: '1rem'
+      }"
+    >
+      <h3
+        class="text-lg sm:text-xl font-bold text-gray-800 mb-2"
+        :style="{
+          ...titleStyle,
+          fontSize: '1.25rem',
+          fontWeight: 'bold',
+          color: '#1f2937',
+          marginBottom: '0.5rem'
+        }"
+      >
         {{ memory.title }}
       </h3>
 
@@ -156,8 +186,9 @@ export default {
 
     const currentImage = computed(() => props.memory.images[currentImageIndex.value])
     const hasMultipleImages = computed(() => props.memory.images.length > 1)
-    const isImageLoaded = computed(() => props.loadedImages.has(currentImage.value))
-    const isImageFailed = computed(() => props.failedImages.has(currentImage.value) || imageError.value)
+    // 简化图片加载逻辑，默认认为图片已加载
+    const isImageLoaded = computed(() => true)
+    const isImageFailed = computed(() => imageError.value)
 
     const nextImage = () => {
       if (hasMultipleImages.value) {
@@ -219,27 +250,25 @@ export default {
       window.removeEventListener('resize', handleResize)
     })
 
-    // 动画样式
+    // 简化动画样式，确保卡片能正常显示
     const cardStyle = reactive({
-      opacity: 0,
-      transform: 'translateY(50px)',
-      animation: `slideUp 0.6s ${props.index * 0.1}s forwards`
+      opacity: 1,
+      transform: 'translateY(0)',
+      transition: 'all 0.3s ease'
     })
 
     const imageStyle = reactive({
-      opacity: 0,
-      transform: 'scale(1.1)',
-      animation: 'fadeScaleIn 0.5s forwards'
+      opacity: 1,
+      transform: 'scale(1)',
+      transition: 'all 0.3s ease'
     })
 
     const titleStyle = reactive({
-      opacity: 0,
-      animation: 'fadeIn 0.5s 0.2s forwards'
+      opacity: 1
     })
 
     const metaStyle = reactive({
-      opacity: 0,
-      animation: 'fadeIn 0.5s 0.3s forwards'
+      opacity: 1
     })
 
     const categoryStyle = {

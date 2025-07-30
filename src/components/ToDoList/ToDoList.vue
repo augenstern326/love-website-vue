@@ -83,12 +83,12 @@ export default {
         status: false
       },
       {
-        id:7,
+        id:6,
         name: '一起去爬山⛰',
         status: false
       },
       {
-        id:11,
+        id:7,
         name: '一起去游乐园🎡',
         status: false
       },
@@ -98,23 +98,18 @@ export default {
         status: false
       },
       {
-        id:12,
+        id:9,
         name:'一起看烟花🎆',
         status: false
       },
       {
-        id: 6,
+        id: 10,
         name: '一起去电影院看电影🎬',
         status: true
       },
       {
-        id:9,
+        id:11,
         name: '一起赖一次床🛏️',
-        status: true
-      },
-      {
-        id:10,
-        name: '一起下班后散步',
         status: true
       },
       {
@@ -129,7 +124,7 @@ export default {
       },
       {
         id:14,
-        name:'一起按摩💆',
+        name:'一起去按摩💆',
         status: false
       },
       {
@@ -330,21 +325,21 @@ export default {
 }
 
 .scrollable-list::-webkit-scrollbar {
-  width: 12px;
+  width: 32px;
 }
 
 .scrollable-list::-webkit-scrollbar-track {
-  background: #ffeef8;
+  background: rgba(0, 212, 170, 0.1);
   border-radius: 4px;
 }
 
 .scrollable-list::-webkit-scrollbar-thumb {
-  background: #00d4aa; 
+  background: linear-gradient(135deg, #00d4aa, #00d4aa);
   border-radius: 4px;
 }
 
 .scrollable-list::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #90ee90, #00ff7f); /* 悬停时的薄荷绿 */
+  background: linear-gradient(135deg, #00a085, #00d4aa);
 }
 
 /* 勾选框样式 */
@@ -367,8 +362,8 @@ export default {
 }
 
 .checkbox.checked {
-  background: linear-gradient(135deg, #19ffa0, #00d4aa);
-  border-color: #19ffa0;
+  background: linear-gradient(135deg, #00d4aa, #00a085);
+  border-color: #00d4aa;
 }
 
 .checkmark {
@@ -404,7 +399,7 @@ export default {
 
 /* 完成徽章 */
 .completion-badge {
-  background: linear-gradient(135deg, #19ffa0, #00d4aa);
+  background: linear-gradient(135deg, #00d4aa, #00a085);
   color: white;
   padding: 0.3rem 0.8rem;
   border-radius: 1rem;

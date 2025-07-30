@@ -104,7 +104,7 @@ const isTransitioning = ref(false)
 const pages = [
   { component: Page1, name: 'Home' },
   { component: Page2, name: 'TodoList' },
-  { component: Page3, name: 'Memory' }
+  { component: Page3, name: 'Memory' },
 ]
 
 // Swiper实例引用
