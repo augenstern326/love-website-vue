@@ -36,7 +36,8 @@ textarea {
 }
 
 body {
-    background-image: linear-gradient(to right, rgba(37, 82, 110, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(37, 82, 110, 0.1) 1px, transparent 1px);
+    background: linear-gradient(135deg, #e6fff9, #f0fffc);
+    background-image: linear-gradient(to right, rgba(0, 212, 170, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 212, 170, 0.1) 1px, transparent 1px);
     background-size: 1.5rem 1.5rem;
 }
 
@@ -280,7 +281,7 @@ a:hover {
     font-size: 1.8rem;
     line-height: 5rem;
     display: block;
-    background-image: linear-gradient(270deg, #ff4500, #ffa500, #ffd700, #90ee90, #00ffff, #1e90ff, #9370db, #ff69b4, #ff4500);
+    background-image: linear-gradient(270deg, #00d4aa, #00a085, #19ffa0, #00fa9a, #98fb98, #90ee90, #00ffff, #00d4aa);
     -webkit-background-clip: text;
     color: #0000;
     animation: jianbian 60s linear infinite;

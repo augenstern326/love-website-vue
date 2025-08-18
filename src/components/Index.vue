@@ -189,15 +189,15 @@ onMounted(() => {
 }
 
 .bg-gradient-0 {
-  background: linear-gradient(135deg, #ffeef8 0%, #f0e6ff 100%);
+  background: linear-gradient(135deg, #e6fff9 0%, #f0fffc 100%);
 }
 
 .bg-gradient-1 {
-  background: linear-gradient(135deg, #e6f3ff 0%, #ffeef8 100%);
+  background: linear-gradient(135deg, #f0fffc 0%, #e6fff9 100%);
 }
 
 .bg-gradient-2 {
-  background: linear-gradient(135deg, #f0e6ff 0%, #e6f3ff 100%);
+  background: linear-gradient(135deg, #e6fff9 0%, #f0fffc 100%);
 }
 
 .page-content {
@@ -280,11 +280,11 @@ onMounted(() => {
 }
 
 .page-slide::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #ff6b9d, #c44569);
+  background: linear-gradient(135deg, #00d4aa, #00a085);
   border-radius: 3px;
 }
 
 .page-slide::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #ff5a8a, #b8456b);
+  background: linear-gradient(135deg, #00a085, #008066);
 }
 </style>

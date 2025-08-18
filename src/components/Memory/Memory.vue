@@ -18,35 +18,14 @@
       </button>
     </div>
 
-    <!-- 记忆网格容器 -->
+    <!-- 记忆列表容器 -->
     <div class="memories-container">
-      <div class="memories-grid">
-        <div
+      <div class="memories-list">
+        <MemoryCard
             v-for="memory in filteredMemories"
             :key="memory.id"
-            class="memory-card"
-        >
-          <!-- 图片占位符 -->
-          <div class="memory-image">
-            <div class="image-placeholder">
-              <img :src="memory.images[0]">
-            </div>
-          </div>
-
-          <!-- 内容 -->
-          <div class="memory-content">
-            <h3 class="memory-card-title">{{ memory.title }}</h3>
-
-            <div class="memory-meta">
-              <div class="memory-date">📅 {{ memory.date }}</div>
-              <div class="memory-location">📍 {{ memory.location }}</div>
-            </div>
-
-            <p class="memory-description">{{ memory.description }}</p>
-
-            <div class="memory-category">{{ memory.category }}</div>
-          </div>
-        </div>
+            :memory="memory"
+        />
       </div>
     </div>
   </div>
@@ -54,6 +33,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import MemoryCard from './MemoryCard.vue'
 
 const activeCategory = ref('all')
 
@@ -101,7 +81,7 @@ const memories = ref([
     location: "家",
     description: "紫燕百味鸡、《夏洛特烦恼》",
     category: "日常",
-    images: ["/src/assets/img/memory/20250622.jpg"]
+    images: ["@/assets/img/memory/20250622.jpg"]
   },
   {
     id: 6,
@@ -209,100 +189,38 @@ const setActiveCategory = (category) => {
   position: relative;
 }
 
-.memories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+.memories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   height: 100%;
   overflow-y: auto;
   padding-right: 10px;
   padding-bottom: 20px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 /* 滚动条样式 */
-.memories-grid::-webkit-scrollbar {
+.memories-list::-webkit-scrollbar {
   width: 8px;
 }
 
-.memories-grid::-webkit-scrollbar-track {
+.memories-list::-webkit-scrollbar-track {
   background: rgba(0, 212, 170, 0.1);
   border-radius: 4px;
 }
 
-.memories-grid::-webkit-scrollbar-thumb {
+.memories-list::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, #00d4aa, #00a085);
   border-radius: 4px;
 }
 
-.memories-grid::-webkit-scrollbar-thumb:hover {
+.memories-list::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #00a085, #008066);
 }
 
-/* 记忆卡片 */
-.memory-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  height: fit-content;
-}
-
-.memory-card:hover {
-  transform: translateY(-5px);
-}
-
-.memory-image {
-  height: 150px;
-  position: relative;
-  overflow: hidden;
-}
-
-.image-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(45deg, #e6fff9, #f0fffc);
-  font-size: 3rem;
-  color: #00d4aa;
-}
-
-.memory-content {
-  padding: 1.5rem;
-}
-
-.memory-card-title {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-.memory-meta {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  color: #666;
-  flex-wrap: wrap;
-}
-
-.memory-description {
-  color: #555;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-.memory-category {
-  display: inline-block;
-  background: linear-gradient(45deg, #00d4aa, #00a085);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 15px;
-  font-size: 0.8rem;
-}
+/* 移动端适配 */
 
 /* 移动端适配 */
 @media (max-width: 768px) {
@@ -314,49 +232,14 @@ const setActiveCategory = (category) => {
     font-size: 2rem;
   }
 
-  .memories-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-
-  .memory-content {
-    padding: 1rem;
-  }
-
-  .memory-card-title {
-    font-size: 1.1rem;
-  }
-
-  .memory-meta {
-    font-size: 0.8rem;
-    gap: 10px;
-  }
-
-  .memory-description {
-    font-size: 0.9rem;
+  .memories-list {
+    gap: 12px;
   }
 }
 
 @media (max-width: 480px) {
-  .memories-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .memory-content {
-    padding: 0.8rem;
-  }
-
-  .memory-card-title {
-    font-size: 1rem;
-  }
-
-  .memory-meta {
-    font-size: 0.75rem;
-  }
-
-  .memory-description {
-    font-size: 0.85rem;
+  .memories-list {
+    gap: 10px;
   }
 }
 </style>

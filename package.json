@@ -12,6 +12,7 @@
     "@vueuse/motion": "^3.0.3",
     "aos": "^3.0.0-beta.6",
     "framer-motion": "^12.23.11",
+    "gsap": "^3.13.0",
     "lucide-vue-next": "^0.532.0",
     "nprogress": "^0.2.0",
     "swiper": "^8.4.7",

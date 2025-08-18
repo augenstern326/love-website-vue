@@ -139,8 +139,8 @@ class LoveTreeAnimation {
     
     // 绘制背景渐变
     const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height)
-    gradient.addColorStop(0, '#ffe0e6')
-    gradient.addColorStop(1, '#fff0f5')
+    gradient.addColorStop(0, '#e6fff9')
+    gradient.addColorStop(1, '#f0fffc')
     this.ctx.fillStyle = gradient
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
@@ -389,7 +389,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 10px;
-  background: linear-gradient(135deg, #ffe0e6, #fff0f5);
+  background: linear-gradient(135deg, #e6fff9, #f0fffc);
   font-family: '微软雅黑', '宋体', sans-serif;
   color: #231F20;
   overflow-x: hidden;
@@ -462,7 +462,7 @@ onUnmounted(() => {
 
 .digit {
   font-size: 24px;
-  color: #e74c3c;
+  color: #00d4aa;
   font-weight: bold;
 }
 
@@ -488,7 +488,7 @@ onUnmounted(() => {
 .error-message {
   text-align: center;
   margin-top: 60px;
-  color: #e74c3c;
+  color: #00a085;
   font-size: 16px;
   padding: 20px;
   background: rgba(255, 255, 255, 0.9);
