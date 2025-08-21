@@ -325,7 +325,7 @@ export default {
 }
 
 .scrollable-list::-webkit-scrollbar {
-  width: 32px;
+  width: 8px;
 }
 
 .scrollable-list::-webkit-scrollbar-track {

@@ -401,6 +401,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   gap: 15px;
+  color: black;
 }
 
 .countdown-item {
@@ -422,7 +423,7 @@ onUnmounted(() => {
 
 .unit {
   font-size: 14px;
-  color: #888;
+  color: black;
   margin-top: 5px;
 }
 
