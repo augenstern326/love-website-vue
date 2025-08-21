@@ -6,36 +6,33 @@
         <div class="anniversary-title">距离 {{ nextAnniversary.name }} 还有</div>
         <div class="countdown">
           <div class="countdown-item">
-            <div class="count">{{ nextAnniversary.days }}</div>
-            <div class="unit">天</div>
+            <div class="count-container">
+              <div class="count">{{ nextAnniversary.days }}</div>
+              <div class="unit">天</div>
+            </div>
           </div>
           <div class="countdown-item">
-            <div class="count">{{ nextAnniversary.hours }}</div>
-            <div class="unit">时</div>
+            <div class="count-container">
+              <div class="count">{{ nextAnniversary.hours }}</div>
+              <div class="unit">时</div>
+            </div>
           </div>
           <div class="countdown-item">
-            <div class="count">{{ nextAnniversary.minutes }}</div>
-            <div class="unit">分</div>
+            <div class="count-container">
+              <div class="count">{{ nextAnniversary.minutes }}</div>
+              <div class="unit">分</div>
+            </div>
           </div>
           <div class="countdown-item">
-            <div class="count">{{ nextAnniversary.seconds }}</div>
-            <div class="unit">秒</div>
+            <div class="count-container">
+              <div class="count">{{ nextAnniversary.seconds }}</div>
+              <div class="unit">秒</div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- 爱心波浪线 -->
-      <div class="heart-divider">
-        <span class="heart-icon" v-for="n in 5" :key="`heart-${n}`">❤</span>
-      </div>
-
       <!-- 随机爱情语录 -->
       <div class="love-quote">{{ randomQuote }}</div>
-
-      <!-- 版权信息 -->
-      <div class="copyright">
-        © {{ currentYear }} Hu & Tang | 用❤️创造每一天
-      </div>
     </div>
   </div>
 </template>
@@ -369,6 +366,13 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+@font-face {
+  font-family: 'GongFanLeTao';
+  src: url('/fonts/GongFanLeTao.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .footer-container {
   width: 100%;
   padding: 30px 0;
@@ -376,8 +380,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fafafa;
-  border-top: 1px solid #eee;
+  font-family: 'GongFanLeTao', sans-serif;
 }
 
 .footer-content {
@@ -406,83 +409,39 @@ onUnmounted(() => {
 
 .countdown-item {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+}
+
+.count-container {
+  display: flex;
   align-items: center;
 }
 
 .count {
-  font-size: 24px;
+  font-size: 36px;
   font-weight: bold;
-  color: #ff6b6b;
+  color: #00d4aa;;
   background-color: #fff;
   border-radius: 8px;
   padding: 10px 15px;
   min-width: 60px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  text-align: center;
 }
 
 .unit {
-  font-size: 14px;
+  font-size: 24px;
   color: black;
-  margin-top: 5px;
-}
-
-.heart-divider {
-  margin: 20px 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.heart-icon {
-  color: #ff6b6b;
-  font-size: 14px;
-  margin: 0 8px;
-  animation: heartbeat 1.5s infinite alternate;
-}
-
-.heart-icon:nth-child(odd) {
-  animation-delay: 0.5s;
-}
-
-@keyframes heartbeat {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(1.3);
-  }
+  margin-left: 5px;
+  font-weight: bold;
 }
 
 .love-quote {
-  font-size: 16px;
+  font-size: 24px;
   font-style: italic;
   color: #555;
   margin-bottom: 15px;
   line-height: 1.5;
-}
-
-.social-links {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 15px;
-}
-
-.social-icon {
-  margin: 0 10px;
-  color: #666;
-  font-size: 18px;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-
-.social-icon:hover {
-  color: #ff6b6b;
-  transform: scale(1.2);
-}
-
-.copyright {
-  font-size: 14px;
-  color: #888;
 }
 
 /* 适配暗色模式 */
@@ -509,14 +468,6 @@ onUnmounted(() => {
   .love-quote {
     color: #bbb;
   }
-
-  .social-icon {
-    color: #aaa;
-  }
-
-  .copyright {
-    color: #999;
-  }
 }
 
 /* 响应式设计 */
@@ -532,7 +483,8 @@ onUnmounted(() => {
   }
 
   .unit {
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: bold;
   }
 
   .love-quote {

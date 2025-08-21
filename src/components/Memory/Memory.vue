@@ -1,6 +1,7 @@
 <template>
   <div class="memory-page">
     <!-- 头部 -->
+    <div style="padding-top: 48px"></div>
     <div class="memory-header">
       <h1 class="memory-title">珍藏每一个回忆</h1>
     </div>
@@ -174,6 +175,17 @@ const memories = ref([
     images: [
       "/img/memory/20250719-1.jpg",
       "/img/memory/20250719-2.jpg"
+    ]
+  },
+  {
+    id: 7,
+    title: "第一次在家做饭",
+    date: "2025-08-20",
+    location: "家",
+    description: "红烧鸡翅根、酸辣土豆丝",
+    category: "日常",
+    images: [
+      "/img/memory/20250820.jpg"
     ]
   }
 ])

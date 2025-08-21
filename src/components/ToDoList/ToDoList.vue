@@ -1,23 +1,24 @@
 <template>
-  <div class="todo-container">
-    <!-- 背景装饰 -->
-    <div class="background-decoration">
-      <div class="floating-heart heart-1">💕</div>
-      <div class="floating-heart heart-2">💖</div>
-      <div class="floating-heart heart-3">✨</div>
-      <div class="floating-heart heart-4">🌸</div>
-    </div>
-
+  <!-- 头部 -->
+  <div style="padding-top: 48px"></div>
+  <div class="todo-container swiper-slide">
     <div id="pjax-container" class="pjax-full-height">
       <div class="central">
         <div class="row central central-800">
           <div v-if="loveEvents.length > 0" class="card col-lg-12 col-md-12 col-sm-12 col-sm-x-12 modern-card">
+            <div class="list-header">
+              <div class="list-stats">
+                <span class="completed-count">已完成: {{ completedCount }}</span>
+                <span class="total-count">总计: {{ loveEvents.length }}</span>
+              </div>
+            </div>
             <div class="list_texts scrollable-list">
               <ul class="lovelist modern-list">
                 <li
-                  v-for="(event, index) in sortedEvents"
-                  :key="event.id"
-                  :class="['event-item', 'modern-item', { 'completed': event.status, 'pending': !event.status }]"
+                    v-for="(event, index) in sortedEvents"
+                    :key="event.id"
+                    :class="['event-item', 'modern-item', { 'completed': event.status, 'pending': !event.status }]"
+                    @click="toggleEventStatus(event)"
                 >
                   <div class="event-content">
                     <!-- 勾选框 -->
@@ -29,7 +30,7 @@
                       </div>
                     </div>
 
-                    <span class="event-title">
+                    <span :class="['event-title', { 'completed-text': event.status }]">
                       {{ event.name }}
                     </span>
                   </div>
@@ -44,7 +45,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 export default {
   name: 'ToDoList',
@@ -52,9 +53,13 @@ export default {
     text: {
       type: Object,
       default: () => ({ title: '恋爱事件', Animation: '1' })
+    },
+    swiperInstance: {
+      type: Object,
+      default: null
     }
   },
-  setup() {
+  setup(props) {
     // Mock data - replace with actual API call in production
     const loveEvents = ref([
       {
@@ -139,8 +144,6 @@ export default {
       }
     ]);
 
-    // 移除expandedEvents相关代码，因为现在直接切换完成状态
-
     // 排序事件：未完成的在前，已完成的在后
     const sortedEvents = computed(() => {
       return [...loveEvents.value].sort((a, b) => {
@@ -150,31 +153,74 @@ export default {
       });
     });
 
+    // 计算已完成事件数量
+    const completedCount = computed(() => {
+      return loveEvents.value.filter(event => event.status).length;
+    });
+
+    // 切换事件状态
+    const toggleEventStatus = (event) => {
+      event.status = !event.status;
+      // 这里可以添加保存到本地存储或发送到服务器的逻辑
+      saveToLocalStorage();
+    };
+
+    // 保存到本地存储
+    const saveToLocalStorage = () => {
+      localStorage.setItem('loveEvents', JSON.stringify(loveEvents.value));
+    };
+
+    // 从本地存储加载
+    const loadFromLocalStorage = () => {
+      const savedEvents = localStorage.getItem('loveEvents');
+      if (savedEvents) {
+        loveEvents.value = JSON.parse(savedEvents);
+      }
+    };
+
+    // 生命周期钩子
+    onMounted(() => {
+      loadFromLocalStorage();
+
+      // 添加Swiper相关的初始化逻辑
+      if (props.swiperInstance) {
+        // 可以在这里添加swiper相关的事件监听
+        props.swiperInstance.on('slideChangeTransitionEnd', () => {
+          // 当滑动到此页面时的逻辑
+        });
+      }
+    });
+
+    onUnmounted(() => {
+      // 清理Swiper相关的事件监听
+      if (props.swiperInstance) {
+        props.swiperInstance.off('slideChangeTransitionEnd');
+      }
+    });
+
     // Format date for display
     const formatDate = (dateString) => {
       const options = { year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('zh-CN', options);
     };
 
-
-
     return {
       loveEvents,
       sortedEvents,
-      formatDate
+      completedCount,
+      formatDate,
+      toggleEventStatus
     };
   }
 };
 </script>
 
 <style scoped>
-/* 容器样式 - 占满整个屏幕 */
+/* 容器样式 - 适配Swiper */
 .todo-container {
-  position: fixed;
-  top: 4.5rem; /* 从Header下方开始 */
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+  height: 100%;
+  width: 100%;
   background: transparent;
   overflow: hidden;
   display: flex;
@@ -200,42 +246,57 @@ export default {
   padding: 0;
 }
 
-/* 背景装饰 */
-.background-decoration {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
+/* 列表标题样式 */
+.list-header {
+  padding: 1.5rem 1.5rem 0.5rem;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  font-size: 1.2rem;
+  border-bottom: 1px solid rgba(255, 182, 193, 0.2);
 }
 
-.floating-heart {
-  position: absolute;
-  font-size: 2rem;
-  opacity: 0.2;
-  /* 移除动画效果 */
+.list-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #00d4aa;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Glorious Easter TTF Personal', serif;
 }
 
-.heart-1 {
-  top: 10%;
-  left: 10%;
+.list-stats {
+  display: flex;
+  gap:1rem;
+  color: #666;
 }
 
-.heart-2 {
-  top: 20%;
-  right: 15%;
+.completed-count {
+  color: #00a085;
+  font-weight: 500;
+  font-size: 1.2rem;
+}
+.total-count {
+  color: #00a085;
+  font-weight: 500;
+  font-size: 1.2rem;
 }
 
-.heart-3 {
-  bottom: 30%;
-  left: 20%;
-}
 
-.heart-4 {
-  bottom: 15%;
-  right: 10%;
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg);
+  }
+  75% {
+    transform: translateY(15px) rotate(-5deg);
+  }
 }
 
 /* 基础卡片样式 */
@@ -269,8 +330,6 @@ export default {
   box-sizing: border-box;
 }
 
-
-
 /* 列表容器样式 */
 .list_texts {
   height: 100%;
@@ -295,10 +354,15 @@ export default {
   margin-bottom: 0.5rem;
   border-radius: 0.5rem;
   overflow: hidden;
-  cursor: default;
+  cursor: pointer;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 182, 193, 0.2);
-  /* 移除所有动画和过渡效果以提升滚动性能 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modern-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .modern-item.completed {
@@ -317,7 +381,7 @@ export default {
   max-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.5rem 1rem 1rem 1rem; /* 修复右侧padding */
+  padding: 1rem 1rem 1rem 1rem; /* 修复右侧padding */
   box-sizing: border-box;
   /* 优化滚动性能 */
   -webkit-overflow-scrolling: touch;
@@ -358,7 +422,7 @@ export default {
   justify-content: center;
   background: white;
   position: relative;
-  /* 移除动画效果 */
+  transition: all 0.2s ease;
 }
 
 .checkbox.checked {
@@ -370,7 +434,8 @@ export default {
   width: 14px;
   height: 14px;
   color: white;
-  /* 移除动画效果 */
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .checkbox.checked .checkmark {
@@ -394,47 +459,34 @@ export default {
   font-family: 'Noto Serif SC', serif;
   text-align: left;
   line-height: 1.5;
-  /* 移除动画效果 */
+  transition: color 0.2s ease;
 }
 
-/* 完成徽章 */
-.completion-badge {
-  background: linear-gradient(135deg, #00d4aa, #00a085);
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  /* 移除动画效果 */
+.completed-text {
+  color: #00a085;
+  text-decoration: line-through;
+  opacity: 0.8;
 }
 
 /* 移动端优化 */
 @media (max-width: 768px) {
   .todo-container {
-    position: fixed;
-    top: 4.5rem;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
-  .pjax-full-height {
+    position: relative;
     height: 100%;
     width: 100%;
   }
 
-  .central {
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    margin: 0;
+  .list-header {
+    padding: 1rem 1rem 0.5rem;
   }
 
-  .row {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
+  .list-title {
+    font-size: 1.3rem;
+  }
+
+  .list-stats {
+    font-size: 0.8rem;
+    gap: 0.5rem;
   }
 
   .modern-card {
@@ -451,7 +503,7 @@ export default {
   }
 
   .scrollable-list {
-    padding: 1.5rem 0.75rem 0.75rem 0.75rem; /* 保持顶部padding避免遮挡 */
+    padding: 0.75rem 0.75rem 0.75rem 0.75rem;
   }
 
   .event-content {
@@ -479,11 +531,20 @@ export default {
 
 @media (max-width: 480px) {
   .todo-container {
-    position: fixed;
-    top: 4.5rem;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+
+  .list-header {
+    padding: 0.75rem 0.75rem 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .list-title {
+    font-size: 1.2rem;
   }
 
   .modern-card {
@@ -500,7 +561,7 @@ export default {
   }
 
   .scrollable-list {
-    padding: 1.5rem 0.5rem 0.5rem 0.5rem; /* 保持顶部padding避免遮挡 */
+    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
   }
 
   .event-content {
@@ -518,11 +579,6 @@ export default {
   .checkmark {
     width: 10px;
     height: 10px;
-  }
-
-  .completion-badge {
-    padding: 0.2rem 0.6rem;
-    font-size: 0.7rem;
   }
 }
 
