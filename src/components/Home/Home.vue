@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import Avatar from "@/components/Home/Avatar.vue";
 import CountUpTimer from "@/components/Home/CountUpTimer.vue";
-
+import Footer from '@/components/Home/Footer.vue';
 
 const bgImage = ref(new URL('@/assets/img/bg.webp', import.meta.url).href)
 const startDate = ref('2025-06-06 20:00:00')

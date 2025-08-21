@@ -1,21 +1,80 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 
-defineProps({
-  key: String,
+const props = defineProps({
   memory: Object,
 })
 
 // 检测移动端
-const isMobile = computed(() => window.innerWidth <= 768)
+const isMobile = ref(false)
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
+
+// 图片加载错误处理
+const handleImageError = (event) => {
+  console.warn('图片加载失败:', event.target.src)
+  // 设置默认图片
+  event.target.src = '/img/memory/default.jpg'
+}
+
+// 图片加载成功处理
+const handleImageLoad = (event) => {
+  event.target.style.opacity = '1'
+}
+
+// 阻止事件冒泡，避免与Swiper冲突
+const stopPropagation = (e) => {
+  e.stopPropagation();
+}
 </script>
 
 <template>
-  <a-card hoverable class="memory-card">
+  <a-card
+      hoverable
+      class="memory-card"
+      @touchstart.stop
+      @touchmove.stop
+      @wheel.stop
+  >
     <template #cover>
-      <a-carousel arrows dots-class="slick-dots slick-thumb" class="memory-carousel">
-        <div v-for="imgUrl in memory.images" :key="imgUrl" class="carousel-item">
-          <img :src="imgUrl" :alt="memory.title" class="memory-image" />
+      <a-carousel
+          arrows
+          dots-class="slick-dots slick-thumb"
+          class="memory-carousel"
+          @touchstart.stop
+          @touchmove.stop
+          @wheel.stop
+      >
+        <div
+            v-for="imgUrl in memory.images"
+            :key="imgUrl"
+            class="carousel-item"
+            @touchstart.stop
+            @touchmove.stop
+            @wheel.stop
+        >
+          <img
+              :src="imgUrl"
+              :alt="memory.title"
+              class="memory-image"
+              @error="handleImageError"
+              @load="handleImageLoad"
+              loading="lazy"
+              @touchstart.stop
+              @touchmove.stop
+              @wheel.stop
+          />
         </div>
       </a-carousel>
     </template>
@@ -42,6 +101,8 @@ const isMobile = computed(() => window.innerWidth <= 768)
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  width: 100%;
+  touch-action: pan-y; /* 允许垂直平移 */
 }
 
 .memory-card:hover {
@@ -52,21 +113,29 @@ const isMobile = computed(() => window.innerWidth <= 768)
 .memory-carousel {
   height: 250px;
   overflow: hidden;
+  background: #f5f5f5;
 }
 
 .carousel-item {
   height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
 }
 
 .memory-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  object-position: center;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  background: #f5f5f5;
 }
 
 .memory-image:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .card-meta {
@@ -110,8 +179,8 @@ const isMobile = computed(() => window.innerWidth <= 768)
 /* 移动端适配 */
 @media (max-width: 768px) {
   .memory-card {
-    width: 80vw;
-    margin: 0 auto 20px auto;
+    width: 100%;
+    margin: 0 auto 15px auto;
     border-radius: 12px;
   }
 
@@ -142,7 +211,8 @@ const isMobile = computed(() => window.innerWidth <= 768)
 
 @media (max-width: 480px) {
   .memory-card {
-    width: 85vw;
+    width: 100%;
+    margin-bottom: 12px;
   }
 
   .memory-carousel {
@@ -163,6 +233,10 @@ const isMobile = computed(() => window.innerWidth <= 768)
 
   .memory-desc {
     font-size: 12px;
+  }
+
+  :deep(.ant-card-meta-title) {
+    font-size: 16px;
   }
 }
 
@@ -193,5 +267,24 @@ const isMobile = computed(() => window.innerWidth <= 768)
 
 :deep(.slick-dots li.slick-active button) {
   background: white;
+}
+
+/* 轮播箭头样式优化 */
+:deep(.slick-prev),
+:deep(.slick-next) {
+  z-index: 2;
+}
+
+:deep(.slick-prev:before),
+:deep(.slick-next:before) {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+}
+
+@media (max-width: 480px) {
+  :deep(.slick-prev),
+  :deep(.slick-next) {
+    display: none !important;
+  }
 }
 </style>
