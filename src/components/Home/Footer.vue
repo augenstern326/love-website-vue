@@ -108,7 +108,6 @@ function initAnniversaries() {
   const currentYear = now.getFullYear();
   const nextYear = currentYear + 1;
 
-  console.log('开始初始化纪念日数据，当前时间:', now);
 
   // 定义所有纪念日
   const allAnniversaries = [
@@ -216,13 +215,11 @@ function initAnniversaries() {
   anniversaries.value = allAnniversaries.map(anni => {
     try {
       const annDate = anni.getDate ? anni.getDate() : anni.date;
-      console.log(`处理纪念日: ${anni.name}, 日期:`, annDate);
       return {
         name: anni.name,
         date: annDate
       };
     } catch (error) {
-      console.error(`处理纪念日出错: ${anni.name}`, error);
       return {
         name: anni.name,
         date: new Date(currentYear + 1, 0, 1) // 设置一个默认日期
@@ -230,21 +227,17 @@ function initAnniversaries() {
     }
   });
 
-  console.log('初始化的所有纪念日:', anniversaries.value);
 }
 
 // 计算下一个纪念日
 function calculateNextAnniversary() {
   const now = new Date();
-  console.log('当前时间:', now);
-  console.log('所有纪念日:', anniversaries.value);
 
   // 过滤出未来的纪念日
   const futureAnniversaries = anniversaries.value
       .filter(anni => anni.date && anni.date > now)
       .sort((a, b) => a.date - b.date);
 
-  console.log('未来的纪念日:', futureAnniversaries);
 
   if (futureAnniversaries.length > 0) {
     const next = futureAnniversaries[0];
@@ -265,9 +258,7 @@ function calculateNextAnniversary() {
       seconds
     };
 
-    console.log('下一个纪念日:', nextAnniversary.value);
   } else {
-    console.warn('没有找到未来的纪念日，重新初始化');
     // 如果没有未来的纪念日，重新初始化
     initAnniversaries();
 
@@ -336,7 +327,6 @@ function updateCountdown() {
 
   // 如果倒计时结束，重新初始化
   if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0) {
-    console.log('倒计时结束，重新初始化纪念日');
     initAnniversaries();
     calculateNextAnniversary();
   }
@@ -360,27 +350,20 @@ onUnmounted(() => {
   // 清除定时器
   if (timer) {
     clearInterval(timer);
-    console.log('组件卸载，清除定时器');
   }
 });
 </script>
 
 <style scoped>
-@font-face {
-  font-family: 'GongFanLeTao';
-  src: url('/fonts/GongFanLeTao.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+
 
 .footer-container {
   width: 100%;
-  padding: 30px 0;
+  padding: 50px 0;
   margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: 'GongFanLeTao', sans-serif;
 }
 
 .footer-content {
@@ -394,10 +377,10 @@ onUnmounted(() => {
 }
 
 .anniversary-title {
-  font-size: 18px;
+  font-size: 24px;
   color: #555;
   margin-bottom: 10px;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .countdown {
@@ -477,18 +460,18 @@ onUnmounted(() => {
   }
 
   .count {
-    font-size: 20px;
+    font-size: 24px;
     padding: 8px 12px;
     min-width: 50px;
   }
 
   .unit {
-    font-size: 14px;
+    font-size: 22px;
     font-weight: bold;
   }
 
   .love-quote {
-    font-size: 14px;
+    font-size: 18px;
   }
 }
 </style>
