@@ -42,19 +42,30 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-// 修改导入语句
 import { Lunar, Solar } from 'lunar-javascript';
 
-// 修改农历转公历函数
+// 改进的农历转公历函数
 function getLunarDate(lunarMonth, lunarDay, year = new Date().getFullYear()) {
   try {
+    // 检查当前农历日期是否已经过了，如果过了就用下一年的
+    const now = new Date();
+    const currentLunar = Lunar.fromDate(now);
+    let targetYear = year;
+
+    // 如果当前农历月份大于目标月份，或者月份相同但日期已过，则使用下一年
+    if (currentLunar.getMonth() > lunarMonth ||
+        (currentLunar.getMonth() === lunarMonth && currentLunar.getDay() > lunarDay)) {
+      targetYear = year + 1;
+    }
+
     // 农历转公历
-    const lunar = Lunar.fromYmd(year, lunarMonth, lunarDay);
+    const lunar = Lunar.fromYmd(targetYear, lunarMonth, lunarDay);
     const solar = lunar.getSolar();
-    console.log(new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay()));
+    console.log(`农历 ${targetYear}年${lunarMonth}月${lunarDay}日 转公历:`,
+        new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay()));
     return new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay());
   } catch (error) {
-    console.error('农历转公历出错:', error);
+    console.error('农历转公历出错:', error, {lunarMonth, lunarDay, year});
     // 如果转换出错，返回一个默认日期
     return new Date(year, 0, 1);
   }
@@ -94,12 +105,13 @@ const nextAnniversary = ref({
 // 定时器
 let timer = null;
 
-
 // 初始化纪念日数据
 function initAnniversaries() {
   const now = new Date();
   const currentYear = now.getFullYear();
   const nextYear = currentYear + 1;
+
+  console.log('开始初始化纪念日数据，当前时间:', now);
 
   // 定义所有纪念日
   const allAnniversaries = [
@@ -126,12 +138,20 @@ function initAnniversaries() {
     // Hu的生日（农历2月初九）
     {
       name: 'Hu的生日',
-      getDate: () => getLunarDate(2, 9)
+      getDate: () => {
+        const date = getLunarDate(2, 9);
+        console.log('Hu的生日计算结果:', date);
+        return date;
+      }
     },
     // Tang的生日（农历9月12日）
     {
       name: 'Tang的生日',
-      getDate: () => getLunarDate(9, 12)
+      getDate: () => {
+        const date = getLunarDate(9, 12);
+        console.log('Tang的生日计算结果:', date);
+        return date;
+      }
     },
     // 情人节
     {
@@ -197,22 +217,37 @@ function initAnniversaries() {
 
   // 处理所有纪念日，确保日期是正确的
   anniversaries.value = allAnniversaries.map(anni => {
-    const annDate = anni.getDate ? anni.getDate() : anni.date;
-    return {
-      name: anni.name,
-      date: annDate
-    };
+    try {
+      const annDate = anni.getDate ? anni.getDate() : anni.date;
+      console.log(`处理纪念日: ${anni.name}, 日期:`, annDate);
+      return {
+        name: anni.name,
+        date: annDate
+      };
+    } catch (error) {
+      console.error(`处理纪念日出错: ${anni.name}`, error);
+      return {
+        name: anni.name,
+        date: new Date(currentYear + 1, 0, 1) // 设置一个默认日期
+      };
+    }
   });
+
+  console.log('初始化的所有纪念日:', anniversaries.value);
 }
 
 // 计算下一个纪念日
 function calculateNextAnniversary() {
   const now = new Date();
+  console.log('当前时间:', now);
+  console.log('所有纪念日:', anniversaries.value);
 
   // 过滤出未来的纪念日
   const futureAnniversaries = anniversaries.value
-      .filter(anni => anni.date > now)
+      .filter(anni => anni.date && anni.date > now)
       .sort((a, b) => a.date - b.date);
+
+  console.log('未来的纪念日:', futureAnniversaries);
 
   if (futureAnniversaries.length > 0) {
     const next = futureAnniversaries[0];
@@ -232,52 +267,114 @@ function calculateNextAnniversary() {
       minutes,
       seconds
     };
+
+    console.log('下一个纪念日:', nextAnniversary.value);
   } else {
-    // 如果没有未来的纪念日（理论上不会发生，因为我们有循环的纪念日）
-    nextAnniversary.value = {
-      name: '下一个纪念日',
-      date: null,
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0
-    };
+    console.warn('没有找到未来的纪念日，重新初始化');
+    // 如果没有未来的纪念日，重新初始化
+    initAnniversaries();
+
+    // 再次尝试查找
+    const retrySortedAnniversaries = anniversaries.value
+        .filter(anni => anni.date && anni.date > now)
+        .sort((a, b) => a.date - b.date);
+
+    if (retrySortedAnniversaries.length > 0) {
+      const next = retrySortedAnniversaries[0];
+      const timeDiff = next.date - now;
+
+      // 计算天、时、分、秒
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+      nextAnniversary.value = {
+        name: next.name,
+        date: next.date,
+        days,
+        hours,
+        minutes,
+        seconds
+      };
+    } else {
+      // 最后的备选方案
+      nextAnniversary.value = {
+        name: '下一个纪念日',
+        date: new Date(now.getFullYear() + 1, 0, 1),
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+      };
+    }
   }
 }
 
 // 更新倒计时
 function updateCountdown() {
-  calculateNextAnniversary();
+  const now = new Date();
 
-  // 如果下一个纪念日已经过去，重新初始化纪念日数据
-  if (nextAnniversary.value.days === 0 &&
-      nextAnniversary.value.hours === 0 &&
-      nextAnniversary.value.minutes === 0 &&
-      nextAnniversary.value.seconds === 0) {
+  // 如果没有下一个纪念日或者下一个纪念日已经过去，重新计算
+  if (!nextAnniversary.value.date || nextAnniversary.value.date <= now) {
+    calculateNextAnniversary();
+    return;
+  }
+
+  const timeDiff = nextAnniversary.value.date - now;
+
+  // 计算天、时、分、秒
+  const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+  nextAnniversary.value = {
+    ...nextAnniversary.value,
+    days,
+    hours,
+    minutes,
+    seconds
+  };
+
+  // 如果倒计时结束，重新初始化
+  if (days <= 0 && hours <= 0 && minutes <= 0 && seconds <= 0) {
+    console.log('倒计时结束，重新初始化纪念日');
     initAnniversaries();
     calculateNextAnniversary();
   }
 }
 
 onMounted(() => {
+  console.log('组件挂载，开始初始化');
+
   // 随机选择一条爱情语录
   const randomIndex = Math.floor(Math.random() * loveQuotes.length);
   randomQuote.value = loveQuotes[randomIndex];
+  console.log('随机爱情语录:', randomQuote.value);
+
+  // 检查 lunar-javascript 库是否正确加载
+  console.log('Lunar 对象:', typeof Lunar, Lunar ? '已加载' : '未加载');
+  console.log('Solar 对象:', typeof Solar, Solar ? '已加载' : '未加载');
 
   // 初始化纪念日数据
   initAnniversaries();
+  console.log('纪念日初始化完成');
 
   // 计算下一个纪念日
   calculateNextAnniversary();
+  console.log('下一个纪念日计算完成:', nextAnniversary.value);
 
   // 设置定时器，每秒更新倒计时
   timer = setInterval(updateCountdown, 1000);
+  console.log('倒计时定时器已设置');
 });
 
 onUnmounted(() => {
   // 清除定时器
   if (timer) {
     clearInterval(timer);
+    console.log('组件卸载，清除定时器');
   }
 });
 </script>
