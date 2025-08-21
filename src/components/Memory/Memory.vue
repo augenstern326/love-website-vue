@@ -24,8 +24,7 @@
         <MemoryCard
             v-for="memory in filteredMemories"
             :key="memory.id"
-            :memory="memory"
-        />
+            :memory="memory"/>
       </div>
     </div>
   </div>
@@ -33,7 +32,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import MemoryCard from './MemoryCard.vue'
+import MemoryCard from "@/components/Memory/MemoryCard.vue";
 
 const activeCategory = ref('all')
 
@@ -81,7 +80,7 @@ const memories = ref([
     location: "家",
     description: "紫燕百味鸡、《夏洛特烦恼》",
     category: "日常",
-    images: ["@/assets/img/memory/20250622.jpg"]
+    images: ["/src/assets/img/memory/20250622.jpg"]
   },
   {
     id: 6,

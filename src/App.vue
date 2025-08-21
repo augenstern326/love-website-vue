@@ -5,7 +5,7 @@ import LoadingScreen from "@/components/Loading/LoadingScreen.vue";
 
 <template>
   <div id="app">
-    <LoadingScreen />
+<!--    <LoadingScreen />-->
     <Index/>
   </div>
 </template>

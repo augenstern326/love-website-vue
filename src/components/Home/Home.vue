@@ -32,7 +32,7 @@ const blurEnabled = ref(false)
         :blur-effect="blurEnabled"
     />
     <CountUpTimer :start-date="startDate"/>
-    <div></div>
+    <Footer/>
   </div>
 </template>
 <style scoped>
