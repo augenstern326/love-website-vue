@@ -346,28 +346,17 @@ function updateCountdown() {
 }
 
 onMounted(() => {
-  console.log('组件挂载，开始初始化');
-
   // 随机选择一条爱情语录
   const randomIndex = Math.floor(Math.random() * loveQuotes.length);
   randomQuote.value = loveQuotes[randomIndex];
-  console.log('随机爱情语录:', randomQuote.value);
-
-  // 检查 lunar-javascript 库是否正确加载
-  console.log('Lunar 对象:', typeof Lunar, Lunar ? '已加载' : '未加载');
-  console.log('Solar 对象:', typeof Solar, Solar ? '已加载' : '未加载');
-
   // 初始化纪念日数据
   initAnniversaries();
-  console.log('纪念日初始化完成');
 
   // 计算下一个纪念日
   calculateNextAnniversary();
-  console.log('下一个纪念日计算完成:', nextAnniversary.value);
 
   // 设置定时器，每秒更新倒计时
   timer = setInterval(updateCountdown, 1000);
-  console.log('倒计时定时器已设置');
 });
 
 onUnmounted(() => {
