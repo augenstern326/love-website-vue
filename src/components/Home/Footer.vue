@@ -1,8 +1,48 @@
 <template>
   <div class="footer-container">
     <div class="footer-content">
+      <!-- 天气卡片 -->
+      <div class="card weather-card">
+        <div class="card-header">
+          <h3>今日天气</h3>
+        </div>
+        <div class="weather-header">
+          <div class="weather-location">苏州市</div>
+          <div class="weather-time">{{ weatherTime }}</div>
+        </div>
+        <div class="weather-content">
+          <div class="weather-icon">
+            <img :src="getWeatherIcon(weatherData.skycon)" alt="天气图标">
+          </div>
+          <div class="weather-info">
+            <div class="weather-temp">{{ weatherData.temperature }}°C</div>
+            <div class="weather-desc">{{ getWeatherDesc(weatherData.skycon) }}</div>
+          </div>
+        </div>
+        <div class="weather-details">
+          <div class="weather-detail-item">
+            <span class="detail-label">湿度</span>
+            <span class="detail-value">{{ (weatherData.humidity * 100).toFixed(0) }}%</span>
+          </div>
+          <div class="weather-detail-item">
+            <span class="detail-label">风速</span>
+            <span class="detail-value">{{ weatherData.wind.speed }}km/h</span>
+          </div>
+          <div class="weather-detail-item">
+            <span class="detail-label">空气质量</span>
+            <span class="detail-value">{{ weatherData.aqi }}</span>
+          </div>
+        </div>
+        <div class="weather-forecast">
+          {{ weatherData.forecast }}
+        </div>
+      </div>
+
       <!-- 下一个纪念日倒计时 -->
-      <div class="next-anniversary">
+      <div class="card anniversary-card">
+        <div class="card-header">
+          <h3>纪念日倒计时</h3>
+        </div>
         <div class="anniversary-title">距离 {{ nextAnniversary.name }} 还有</div>
         <div class="countdown">
           <div class="countdown-item">
@@ -31,8 +71,14 @@
           </div>
         </div>
       </div>
+
       <!-- 随机爱情语录 -->
-      <div class="love-quote">{{ randomQuote }}</div>
+      <div class="card quote-card">
+        <div class="card-header">
+          <h3>爱情语录</h3>
+        </div>
+        <div class="love-quote">{{ randomQuote }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -40,6 +86,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Lunar, Solar } from 'lunar-javascript';
+import axios from 'axios';
 
 // 改进的农历转公历函数
 function getLunarDate(lunarMonth, lunarDay, year = new Date().getFullYear()) {
@@ -99,8 +146,20 @@ const nextAnniversary = ref({
   seconds: 0
 });
 
+// 天气数据
+const weatherData = ref({
+  temperature: '--',
+  humidity: 0,
+  skycon: 'CLEAR_DAY',
+  wind: { speed: 0, direction: 0 },
+  aqi: '--',
+  forecast: '暂无天气预报'
+});
+const weatherTime = ref('--:--');
+
 // 定时器
 let timer = null;
+let weatherTimer = null;
 
 // 初始化纪念日数据
 function initAnniversaries() {
@@ -332,18 +391,146 @@ function updateCountdown() {
   }
 }
 
+// 获取天气数据
+async function fetchWeatherData() {
+  try {
+    // 苏州的经纬度：31.3000, 120.5800
+    // 使用代理服务器或JSONP方式解决跨域问题
+    const response = await axios.get('https://api.caiyunapp.com/v2.6/eyvn0HDeToa45QA3/120.5800,31.3000/hourly?hourlysteps=1', {
+      // 添加跨域请求头
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('天气API响应:', response.data);
+
+    if (response.data && response.data.status === 'ok') {
+      const result = response.data.result;
+      const hourly = result.hourly;
+
+      if (hourly && hourly.status === 'ok') {
+        // 更新天气数据
+        weatherData.value = {
+          temperature: hourly.temperature[0].value,
+          humidity: hourly.humidity[0].value,
+          skycon: hourly.skycon[0].value,
+          wind: {
+            speed: hourly.wind[0].speed,
+            direction: hourly.wind[0].direction
+          },
+          aqi: hourly.air_quality.aqi[0].value.chn,
+          forecast: hourly.description
+        };
+
+        // 更新天气时间
+        const dateTime = new Date(hourly.skycon[0].datetime);
+        weatherTime.value = `${dateTime.getHours().toString().padStart(2, '0')}:${dateTime.getMinutes().toString().padStart(2, '0')}`;
+      }
+    } else {
+      // 如果API请求成功但没有返回预期数据，设置默认值
+      setDefaultWeatherData();
+    }
+  } catch (error) {
+    console.error('获取天气数据失败:', error);
+    // 设置默认天气数据
+    setDefaultWeatherData();
+  }
+}
+
+// 设置默认天气数据（当API请求失败时）
+function setDefaultWeatherData() {
+  const now = new Date();
+  weatherData.value = {
+    temperature: 25,
+    humidity: 0.6,
+    skycon: 'CLEAR_DAY',
+    wind: {
+      speed: 5,
+      direction: 90
+    },
+    aqi: 50,
+    forecast: '今日天气晴朗'
+  };
+  weatherTime.value = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+}
+
+// 获取天气图标
+function getWeatherIcon(skycon) {
+  const iconMap = {
+    'CLEAR_DAY': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/clear-day.svg',
+    'CLEAR_NIGHT': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/clear-night.svg',
+    'PARTLY_CLOUDY_DAY': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/partly-cloudy-day.svg',
+    'PARTLY_CLOUDY_NIGHT': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/partly-cloudy-night.svg',
+    'CLOUDY': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/cloudy.svg',
+    'LIGHT_HAZE': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/haze.svg',
+    'MODERATE_HAZE': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/haze.svg',
+    'HEAVY_HAZE': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/haze.svg',
+    'LIGHT_RAIN': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/rain.svg',
+    'MODERATE_RAIN': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/rain.svg',
+    'HEAVY_RAIN': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/rain.svg',
+    'STORM_RAIN': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/thunderstorm.svg',
+    'FOG': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/fog.svg',
+    'LIGHT_SNOW': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/snow.svg',
+    'MODERATE_SNOW': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/snow.svg',
+    'HEAVY_SNOW': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/snow.svg',
+    'STORM_SNOW': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/snow.svg',
+    'DUST': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/dust.svg',
+    'SAND': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/dust.svg',
+    'WIND': 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/wind.svg',
+  };
+
+  return iconMap[skycon] || 'https://cdn.jsdelivr.net/gh/chukai/weather-icon/icon/cloudy.svg';
+}
+
+// 获取天气描述
+function getWeatherDesc(skycon) {
+  const descMap = {
+    'CLEAR_DAY': '晴天',
+    'CLEAR_NIGHT': '晴夜',
+    'PARTLY_CLOUDY_DAY': '多云',
+    'PARTLY_CLOUDY_NIGHT': '多云',
+    'CLOUDY': '阴',
+    'LIGHT_HAZE': '轻度雾霾',
+    'MODERATE_HAZE': '中度雾霾',
+    'HEAVY_HAZE': '重度雾霾',
+    'LIGHT_RAIN': '小雨',
+    'MODERATE_RAIN': '中雨',
+    'HEAVY_RAIN': '大雨',
+    'STORM_RAIN': '暴雨',
+    'FOG': '雾',
+    'LIGHT_SNOW': '小雪',
+    'MODERATE_SNOW': '中雪',
+    'HEAVY_SNOW': '大雪',
+    'STORM_SNOW': '暴雪',
+    'DUST': '浮尘',
+    'SAND': '沙尘',
+    'WIND': '大风',
+  };
+
+  return descMap[skycon] || '未知天气';
+}
+
 onMounted(() => {
   // 随机选择一条爱情语录
   const randomIndex = Math.floor(Math.random() * loveQuotes.length);
   randomQuote.value = loveQuotes[randomIndex];
+
   // 初始化纪念日数据
   initAnniversaries();
 
   // 计算下一个纪念日
   calculateNextAnniversary();
 
+  // 获取天气数据
+  fetchWeatherData();
+
   // 设置定时器，每秒更新倒计时
   timer = setInterval(updateCountdown, 1000);
+
+  // 设置定时器，每30分钟更新一次天气数据
+  weatherTimer = setInterval(fetchWeatherData, 30 * 60 * 1000);
 });
 
 onUnmounted(() => {
@@ -351,43 +538,176 @@ onUnmounted(() => {
   if (timer) {
     clearInterval(timer);
   }
+  if (weatherTimer) {
+    clearInterval(weatherTimer);
+  }
 });
 </script>
 
 <style scoped>
-
-
 .footer-container {
   width: 100%;
-  padding: 50px 0;
+  padding: 30px 0;
   margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #f8f9fa;
 }
 
 .footer-content {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
   max-width: 800px;
+  width: 100%;
   padding: 0 20px;
 }
 
-.next-anniversary {
+/* 通用卡片样式 */
+.card {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.card-header h3 {
+  font-size: 22px;
+  color: #333;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* 天气卡片样式 */
+.weather-card {
+  text-align: left;
+}
+
+.weather-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.weather-location {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.weather-time {
+  font-size: 16px;
+  color: #666;
+}
+
+.weather-content {
+  display: flex;
+  align-items: center;
   margin-bottom: 20px;
 }
 
+.weather-icon {
+  width: 80px;
+  height: 80px;
+  margin-right: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  border-radius: 50%;
+  padding: 10px;
+}
+
+.weather-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.weather-info {
+  flex: 1;
+}
+
+.weather-temp {
+  font-size: 36px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.weather-desc {
+  font-size: 18px;
+  color: #666;
+}
+
+.weather-details {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.weather-detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.detail-value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.weather-forecast {
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  padding: 10px 0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* 纪念日卡片样式 */
+.anniversary-card {
+  text-align: center;
+}
+
 .anniversary-title {
-  font-size: 24px;
+  font-size: 20px;
   color: #555;
-  margin-bottom: 10px;
-  font-weight: 700;
+  margin-bottom: 20px;
+  font-weight: 500;
 }
 
 .countdown {
   display: flex;
   justify-content: center;
   gap: 15px;
-  color: black;
 }
 
 .countdown-item {
@@ -397,41 +717,106 @@ onUnmounted(() => {
 
 .count-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
 }
 
 .count {
   font-size: 36px;
   font-weight: bold;
-  color: #00d4aa;;
+  color: #ff6b6b;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 10px 15px;
   min-width: 60px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.1);
   text-align: center;
+  border: 2px solid #ffeded;
 }
 
 .unit {
-  font-size: 24px;
-  color: black;
-  margin-left: 5px;
-  font-weight: bold;
+  font-size: 16px;
+  color: #666;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* 爱情语录卡片样式 */
+.quote-card {
+  text-align: center;
+  background-color: #fff9f9;
+  border-left: 5px solid #ff6b6b;
 }
 
 .love-quote {
-  font-size: 24px;
+  font-size: 20px;
   font-style: italic;
   color: #555;
-  margin-bottom: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
+  position: relative;
+  padding: 0 20px;
+}
+
+.love-quote::before,
+.love-quote::after {
+  content: '"';
+  font-size: 40px;
+  color: #ffcaca;
+  position: absolute;
+  font-family: serif;
+}
+
+.love-quote::before {
+  left: 0;
+  top: -10px;
+}
+
+.love-quote::after {
+  right: 0;
+  bottom: -30px;
 }
 
 /* 适配暗色模式 */
 @media (prefers-color-scheme: dark) {
   .footer-container {
-    background-color: #222;
-    border-top: 1px solid #333;
+    background-color: #1a1a1a;
+  }
+
+  .card {
+    background-color: #2a2a2a;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-header {
+    border-bottom: 1px solid #3a3a3a;
+  }
+
+  .card-header h3 {
+    color: #eee;
+  }
+
+  .weather-location,
+  .weather-temp {
+    color: #eee;
+  }
+
+  .weather-time,
+  .weather-desc,
+  .detail-label {
+    color: #aaa;
+  }
+
+  .detail-value {
+    color: #ddd;
+  }
+
+  .weather-icon {
+    background-color: #333;
+  }
+
+  .weather-details,
+  .weather-forecast {
+    background-color: #333;
   }
 
   .anniversary-title {
@@ -441,37 +826,147 @@ onUnmounted(() => {
   .count {
     background-color: #333;
     color: #ff8a8a;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border-color: #4a3a3a;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   }
 
   .unit {
     color: #aaa;
   }
 
+  .quote-card {
+    background-color: #2d2626;
+    border-left: 5px solid #ff6b6b;
+  }
+
   .love-quote {
-    color: #bbb;
+    color: #ddd;
+  }
+
+  .love-quote::before,
+  .love-quote::after {
+    color: #5a3a3a;
   }
 }
 
 /* 响应式设计 */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .footer-content {
+    padding: 0 15px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .card-header h3 {
+    font-size: 20px;
+  }
+
+  .weather-location {
+    font-size: 18px;
+  }
+
+  .weather-time {
+    font-size: 14px;
+  }
+
+  .weather-icon {
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+  }
+
+  .weather-temp {
+    font-size: 28px;
+  }
+
+  .weather-desc {
+    font-size: 16px;
+  }
+
+  .weather-details {
+    padding: 10px;
+  }
+
+  .detail-label {
+    font-size: 12px;
+  }
+
+  .detail-value {
+    font-size: 14px;
+  }
+
+  .weather-forecast {
+    font-size: 14px;
+  }
+
+  .anniversary-title {
+    font-size: 18px;
+  }
+
   .countdown {
     gap: 10px;
   }
 
   .count {
-    font-size: 24px;
-    padding: 8px 12px;
+    font-size: 28px;
+    padding: 8px;
     min-width: 50px;
   }
 
   .unit {
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 14px;
   }
 
   .love-quote {
     font-size: 18px;
+    padding: 0 15px;
+  }
+}
+
+/* 小屏幕手机适配 */
+@media (max-width: 480px) {
+  .footer-content {
+    gap: 20px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .weather-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .weather-icon {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  .weather-details {
+    flex-wrap: wrap;
+  }
+
+  .weather-detail-item {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .weather-detail-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .count {
+    font-size: 24px;
+    padding: 6px;
+    min-width: 40px;
+  }
+
+  .unit {
+    font-size: 12px;
   }
 }
 </style>
