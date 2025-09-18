@@ -182,7 +182,7 @@ const memories = ref([
     title: "第一次在家做饭",
     date: "2025-08-20",
     location: "家",
-    description: "红烧鸡翅根、酸辣土豆丝、美味好吃",
+    description: "红烧鸡翅根、酸辣土豆丝",
     category: "日常",
     images: [
       "/img/memory/20250820.jpg"
